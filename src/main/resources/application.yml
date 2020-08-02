@@ -1,2 +1,5 @@
 obex:
   local-path: "/tmp/obex"
+server:
+  servlet:
+    context-path: "/api"

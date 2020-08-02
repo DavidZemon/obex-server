@@ -1,1 +1,1 @@
-GET http://localhost:8080/tree
+GET http://localhost:8080/api/tree
