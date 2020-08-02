@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "obex.local-path",
+      "type": "java.lang.String",
+      "description": "Path on the local file server where the OBEX files may be found."
+  }
+] }
