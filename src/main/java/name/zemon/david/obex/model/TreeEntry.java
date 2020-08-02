@@ -19,4 +19,6 @@ public class TreeEntry {
   private Long size;
   @Nullable
   private Set<TreeEntry> children;
+  @Nullable
+  private String target;
 }

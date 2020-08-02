@@ -46,6 +46,7 @@ public class TreeController {
           result.add(TreeEntry.builder()
               .name(path.getFileName().toString())
               .type(EntryType.SYMLINK)
+              .target(path.toRealPath().toString())
               .build());
         } else if (Files.isDirectory(path)) {
           result.add(TreeEntry.builder()
