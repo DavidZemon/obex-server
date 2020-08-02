@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,8 +15,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
 
 @RestController()
 @RequestMapping("tree")
@@ -31,13 +30,13 @@ public class TreeController {
   public Set<TreeEntry> getTree() throws IOException {
     if (Files.exists(this.obexPath)) {
       final var ignoreList = this.buildIgnoreList(this.obexPath);
-      return this.getTree(this.obexPath, ignoreList);
+      return this.getTree(this.obexPath, this.obexPath, ignoreList);
     } else {
       return Collections.emptySet();
     }
   }
 
-  private Set<TreeEntry> getTree(@Nonnull final Path root, @Nonnull final Set<Path> ignoreList) throws IOException {
+  private Set<TreeEntry> getTree(@Nonnull final Path obexRoot, @Nonnull final Path root, @Nonnull final Set<Path> ignoreList) throws IOException {
     final Set<TreeEntry> result = new HashSet<>();
 
     for (final Path path : Files.list(root).collect(Collectors.toList())) {
@@ -45,18 +44,21 @@ public class TreeController {
         if (Files.isSymbolicLink(path)) {
           result.add(TreeEntry.builder()
               .name(path.getFileName().toString())
+              .fullPath(this.getFullPath(path))
               .type(EntryType.SYMLINK)
               .target(path.toRealPath().toString())
               .build());
         } else if (Files.isDirectory(path)) {
           result.add(TreeEntry.builder()
               .name(path.getFileName().toString())
+              .fullPath(this.getFullPath(path))
               .type(EntryType.FOLDER)
-              .children(this.getTree(path, ignoreList))
+              .children(this.getTree(obexRoot, path, ignoreList))
               .build());
         } else if (Files.isRegularFile(path)) {
           result.add(TreeEntry.builder()
               .name(path.getFileName().toString())
+              .fullPath(this.getFullPath(path))
               .type(EntryType.FILE)
               .size(Files.size(path))
               .build());
@@ -65,6 +67,10 @@ public class TreeController {
     }
 
     return result;
+  }
+
+  private String getFullPath(@Nonnull final Path path) {
+    return this.obexPath.relativize(path).toString();
   }
 
   private Set<Path> buildIgnoreList(@Nonnull final Path root) throws IOException {
