@@ -1,1 +1,9 @@
+GET http://localhost:8080/api/downloads/.gitignore
+
+###
 GET http://localhost:8080/api/tree
+
+###
+
+GET http://localhost:8080/api/downloads/libraries/community/p1/All/4-bit%20Parallel%20LCD%20driver/LCD%204x20%20demo.spin
+
