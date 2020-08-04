@@ -18,7 +18,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController()
-@RequestMapping("tree")
+@RequestMapping("api/tree")
 public class TreeController {
     private final Path obexPath;
 

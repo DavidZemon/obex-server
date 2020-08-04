@@ -25,9 +25,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 @Controller()
-@RequestMapping("downloads")
+@RequestMapping(DownloadsController.CONTEXT_PATH)
 public class DownloadsController {
-    private static final int  PREFIX_LENGTH   = "/downloads/".length();
+    public static final String CONTEXT_PATH = "/api/downloads/";
 
     private final Path obexPath;
 
@@ -43,7 +43,7 @@ public class DownloadsController {
         final var encodedPath = request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE)
                                     .toString();
         final var path = URLDecoder.decode(
-            encodedPath.substring(PREFIX_LENGTH),
+            encodedPath.substring(CONTEXT_PATH.length()),
             Charset.defaultCharset()
         );
         final var absolutePath = this.obexPath.resolve(path);
