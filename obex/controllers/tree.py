@@ -35,9 +35,8 @@ class TreeView(View):
         self.obex_path = os.path.abspath(os.environ.get('OBEX_PATH', '/tmp/obex'))
 
     def get(self, _: HttpRequest) -> HttpResponse:
-        include_list = [
-            line.strip() for line in subprocess.check_output(['git', 'ls-files'], cwd=self.obex_path).decode().split()
-        ]
+        git_ls_files = subprocess.check_output(['git', 'ls-files'], cwd=self.obex_path).decode()
+        include_list = [line.strip() for line in git_ls_files.split(os.linesep)]
 
         entries: List[TreeEntry] = []
         if os.path.exists(self.obex_path):
