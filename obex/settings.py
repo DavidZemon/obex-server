@@ -22,10 +22,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '4@f9cx0)ag7c@9%pig2zlk^maspmb1^qvei@hq^i9%_cn1ky_%'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = 'True' == os.environ.get('OBEX_DEBUG', 'True')
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = [h.strip() for h in os.environ.get('OBEX_ALLOWED_HOSTS', '').split(',') if h.strip()]
 
 # Application definition
 
