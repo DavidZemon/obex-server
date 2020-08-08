@@ -1,6 +1,7 @@
 import mimetypes
 import os
 import urllib.parse
+import magic
 
 from django.http import HttpRequest, HttpResponse
 from django.views import View
@@ -41,8 +42,7 @@ class DownloadsView(View):
         with open(abs_path, 'rb') as f:
             response = HttpResponse(f.read())
 
-        mime = mimetypes.guess_type(abs_path)
-        response['Content-Type'] = mime[0] if mime[0] else 'application/octet-stream'
+        response['Content-Type'] = magic.from_file(abs_path, mime=True)
         response['Content-Disposition'] = f'attachment; filename="{urllib.parse.quote(os.path.basename(abs_path))}"'
         response['Content-Length'] = os.stat(abs_path).st_size
         return response
