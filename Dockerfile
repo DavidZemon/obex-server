@@ -2,7 +2,7 @@ FROM python:3.8.5-slim
 
 RUN apt-get update \
     && apt-get upgrade --yes \
-    && apt-get install --yes --no-install-recommends git-core \
+    && apt-get install --yes --no-install-recommends git-core libmagic1 \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt /opt/server/requirements.txt
