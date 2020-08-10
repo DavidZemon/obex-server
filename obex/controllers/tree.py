@@ -3,7 +3,7 @@ import os
 import subprocess
 from dataclasses import dataclass, asdict
 from enum import Enum
-from typing import List
+from typing import List, Optional
 
 from django.http import HttpResponse, HttpRequest
 from django.views import View
@@ -34,18 +34,24 @@ class TreeView(View):
 
         self.obex_path = os.path.abspath(os.environ.get('OBEX_PATH', '/tmp/obex'))
 
-    def get(self, _: HttpRequest) -> HttpResponse:
+    def get(self, request: HttpRequest) -> HttpResponse:
+        root = os.path.realpath(os.path.join(self.obex_path, request.GET.get('root', '.')))
+        try:
+            depth = int(request.GET['depth'])
+        except KeyError:
+            depth = 32*1024  # I found an Internet blurb that said 32k was max path on ext3... seems big enough
+
         git_ls_files = subprocess.check_output(['git', 'ls-files'], cwd=self.obex_path).decode()
         include_list = [line.strip() for line in git_ls_files.split(os.linesep)]
 
         entries: List[TreeEntry] = []
-        if os.path.exists(self.obex_path):
-            entries = self._get_tree(self.obex_path, include_list)
+        if os.path.exists(root):
+            entries = self._get_tree(root, include_list, depth)
 
         return HttpResponse(json.dumps([asdict(entry) for entry in entries], default=str),
                             content_type='application/json')
 
-    def _get_tree(self, path: str, include_list: List[str]) -> List[TreeEntry]:
+    def _get_tree(self, path: str, include_list: List[str], depth: int) -> List[TreeEntry]:
         result: List[TreeEntry] = []
 
         for entry_name in os.listdir(os.path.join(self.obex_path, path)):
@@ -58,7 +64,10 @@ class TreeView(View):
                         TreeEntry(entry_name, full_path, EntryType.SYMLINK, target=os.readlink(abs_path))
                     )
                 elif os.path.isdir(abs_path):
-                    children = self._get_tree(abs_path, include_list)
+                    if depth:
+                        children = self._get_tree(abs_path, include_list, depth - 1)
+                    else:
+                        children = None
                     result.append(
                         TreeEntry(entry_name, full_path, EntryType.FOLDER, children=children)
                     )
